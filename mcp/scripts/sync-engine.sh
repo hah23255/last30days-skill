@@ -11,15 +11,18 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MCP_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 REPO_ROOT="$(cd "${MCP_DIR}/.." && pwd)"
 ENGINE_SRC="${REPO_ROOT}/skills/last30days/scripts"
-VENDORED="${MCP_DIR}/vendored"
+# Embed path must live inside the consuming package (Go //go:embed cannot
+# reach outside its own directory tree), so vendored/ sits under engine/.
+VENDORED="${MCP_DIR}/internal/engine/vendored"
 
 if [ ! -f "${ENGINE_SRC}/last30days.py" ]; then
   echo "sync-engine: ${ENGINE_SRC}/last30days.py not found" >&2
   exit 1
 fi
 
-rm -rf "${VENDORED}"
 mkdir -p "${VENDORED}"
+# Clear stale content while keeping the .gitkeep that anchors the embed path.
+find "${VENDORED}" -mindepth 1 -not -name ".gitkeep" -delete
 
 # Copy the entry script and the lib/ tree (modules + lib/vendor/).
 cp "${ENGINE_SRC}/last30days.py" "${VENDORED}/last30days.py"

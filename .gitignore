@@ -28,7 +28,11 @@ htmlcov/
 
 # Go MCP bundle build outputs - source of truth for vendored/ stays under
 # skills/last30days/scripts/; build/ holds cross-compiled binaries + .mcpb files.
-/mcp/vendored/
+# vendored/ lives inside the engine package because //go:embed cannot reach
+# outside its own package directory; the .gitkeep anchor stays tracked so
+# the embed pattern always finds a match even before sync-engine runs.
+/mcp/internal/engine/vendored/*
+!/mcp/internal/engine/vendored/.gitkeep
 /mcp/build/
 
 # Internal planning docs (ce:plan output) — keep local, don't publish
